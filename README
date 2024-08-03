@@ -1,14 +1,17 @@
-How To Play Chess
+# Getting Started
 
-Objective
+# How To Play Chess
+
+## Objective
 
 The objective of chess is to checkmate your opponent's king, which means the king is in a position to be captured ("in check") and there is no legal move to escape the threat.
-The Board
+
+### The Board
 
     Chess is played on an 8x8 grid of squares, alternating in color (typically black and white).
     Each player starts with 16 pieces: 1 king, 1 queen, 2 rooks, 2 knights, 2 bishops, and 8 pawns.
 
-Setup
+### Setup
 
     The board is positioned with a white square at the bottom-right corner.
     Each player places their pieces on the two rows closest to them.
@@ -16,7 +19,7 @@ Setup
     The first row (nearest the player) from left to right is: rook, knight, bishop, queen, king, bishop, knight, rook.
     White pieces are placed at the bottom and black pieces at the top.
 
-How Pieces Move
+### How Pieces Move
 
     You can move your pieces during your turn by typing in the coordinate of the piece you want to move
     to the coordinate you want to move said piece to. For example, "A2 to A4" or "B5 to G5". The ways in which 
@@ -29,8 +32,7 @@ How Pieces Move
     Knight (N): Moves in an "L" shape: two squares in one direction and then one square perpendicular. Knights can jump over other pieces.
     Pawn (P): Moves forward one square. On its first move, a pawn can move forward two squares. Pawns capture diagonally.
 
-
-Special Moves (THESE ARE CURRENTLY NOT SUPPORTED)
+### Special Moves (THESE ARE CURRENTLY NOT SUPPORTED)
 
     Castling: A move involving the king and a rook. The king moves two squares towards a rook, and the rook moves to the square over which the king crossed. Conditions:
         Neither the king nor the rook has previously moved.
@@ -41,19 +43,19 @@ Special Moves (THESE ARE CURRENTLY NOT SUPPORTED)
 
     Promotion: When a pawn reaches the farthest row from its starting position, it is promoted to a queen, rook, bishop, or knight of the same color. The choice is not limited to previously captured pieces.
 
-Check and Checkmate
+### Check and Checkmate
 
     Check: A king is in check if it is under threat of capture on the opponent's next move. A player must move out of check on their turn.
     Checkmate: The king is in check and there is no legal move to escape the threat. The player whose king is checkmated loses the game.
 
-Draws
+### Draws
 
     Stalemate: The player whose turn it is to move has no legal moves and their king is not in check.
     Insufficient Material: Neither player has enough pieces to force a checkmate (e.g., king vs. king, king and bishop vs. king, etc.).
     Threefold Repetition: The same board position occurs three times with the same player to move.
     Fifty-move Rule: Fifty moves have been played by each side without any pawn movement or capture.
 
-Starting the Game
+### Starting the Game
 
     White always moves first.
     Players alternate turns, moving one piece per turn.
