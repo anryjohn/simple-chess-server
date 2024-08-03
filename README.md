@@ -1,4 +1,14 @@
 # Getting Started
+To start the server, enter
+    npm run startServer
+
+The above statements compiles and translates typescript code in this repo into javascript before starting the server.
+Alternatively, if you want to run two processes separately, enter
+    npx tsc
+    node server.js
+
+To start the client, enter
+    npm run startClient
 
 # How To Play Chess
 
