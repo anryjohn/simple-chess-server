@@ -48,6 +48,8 @@ wss.on('connection', (ws, req) => {
 
     // Regular expression to match the 'help' input
     const helpRegex = /help/i;
+    // Regular expression to match the 'help' input
+    const showBoardRegex = /show board/i;
     // Regular expression to match the coordinate format "2a" or "describe 2a"
     const describePieceRegex = /describe\s([A-Ha-h])(\d+)/i;
     // Regular expression to match the move piece coordinate format "2A to 4A"

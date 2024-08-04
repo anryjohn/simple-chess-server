@@ -3,7 +3,7 @@ To start the server, enter
 
     npm run startServer
 
-The above statements compiles and translates typescript code in this repo into javascript before starting the server.
+The above statement compiles and translates typescript code in this repo into javascript before starting the server.
 Alternatively, if you want to run two processes separately, enter
 
     npx tsc
@@ -13,6 +13,33 @@ To start the client, enter
     
     npm run startClient
 
+Alternative
+    
+    node client.js
+
+# Commands
+The game board will be displayed in the terminal in the following format:
+
+    1  R N B Q K B N R
+    2  P P P P P P P P
+    3  . . . . . . . .
+    4  . . . . . . . .
+    5  . . . . . . . .
+    6  . . . . . . . .
+    7  P P P P P P P P
+    8  R N B Q K B N R
+
+       A B C D E F G H
+
+To move a piece, select a start coordinate and an end coordinate. Inputs should match the format of the following example:
+
+    A2 to A4
+    d4 to e5
+
+To get a description of a piece at a given coordinate, the input should match the format of the following:
+
+    describe b6
+    
 # How To Play Chess
 
 ## Objective
