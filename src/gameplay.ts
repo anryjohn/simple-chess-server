@@ -10,10 +10,8 @@ class ChessGame {
         white : WebSocket,
         black : WebSocket
     };
-    private chessPlayerKings: {
-        white : King,
-        black: King
-    }
+    private whiteKing: King;
+    private blackKing: King;
     private gameOver: boolean;
 
     constructor(players: [WebSocket, WebSocket]) {
@@ -22,11 +20,10 @@ class ChessGame {
         this.currentTurn = 'white';
 
         this.chessPlayers = this.playerCoinToss(players)
-        this.chessPlayerKings = {
-            white : (this.board.getPiece([7, 4]) as King),
-            black : (this.board.getPiece([0, 4]) as King)
-        }
+        this.whiteKing = this.board.getPiece([7, 4]) as King;
+        this.blackKing = this.board.getPiece([0, 4]) as King;
 
+        // Initially disable gameplay
         this.gameOver = true;
     }
 
@@ -39,34 +36,85 @@ class ChessGame {
         }
     }
 
-    getCurrentTurnPlayer() {
-        return this.chessPlayers[this.currentTurn];
-    }
-
     // Start game
     startGame() {
+        // Enable gameplay
         this.gameOver = false;
 
         const currentTurnPlayer = this.chessPlayers[this.currentTurn];
         const otherPlayerColor = this.currentTurn === 'white' ? 'black' : 'white';
         const otherTurnPlayer = this.chessPlayers[otherPlayerColor];
 
-        currentTurnPlayer.send('\nYou are White. Your pieces are at the bottom of the board.');
-        currentTurnPlayer.send(this.displayBoard('white'))
-        currentTurnPlayer.send('Your turn.\n');
-        otherTurnPlayer.send('\nYou are Black. Your pieces are at the bottom of the board.');
-        otherTurnPlayer.send(this.displayBoard('black'))
-        otherTurnPlayer.send('Please wait while White makes their turn.\n');
+        currentTurnPlayer.send('- You are White. Your pieces are at the bottom of the board.');
+        currentTurnPlayer.send('\n' + this.displayBoard('white') + '\n');
+        currentTurnPlayer.send('- Your turn.');
+        otherTurnPlayer.send('- You are Black. Your pieces are at the bottom of the board.');
+        otherTurnPlayer.send('\n' + this.displayBoard('black') + '\n');
+        otherTurnPlayer.send('- Please wait while White makes their turn.');
     }
 
     stopGame() {
         this.gameOver = true;
     }
 
+    // Handle the turn cycle from player to player
+    endTurn() {
+        Object.entries(this.chessPlayers).forEach(([color, player]) => {
+            player.send(this.displayBoard(color));
+        });
+        console.log(this.displayBoard());
+    
+        this.currentTurn = this.currentTurn === 'white' ? 'black' : 'white';
+        const currentTurnPlayer = this.chessPlayers[this.currentTurn];
+        const otherPlayerColor = this.currentTurn === 'white' ? 'black' : 'white';
+        const otherTurnPlayer = this.chessPlayers[otherPlayerColor];
+    
+        let [gameOver, losingColor] = this.checkWinCondition();
+        if (!gameOver || losingColor === null) {
+            currentTurnPlayer.send('- Your turn.\n');
+            otherTurnPlayer.send('- Please wait while ' + this.currentTurn[0].toUpperCase() + 
+                this.currentTurn.slice(1) + ' makes their turn.\n');
+        } else {
+            const winningColor = losingColor === 'white' ? 'black' : 'white';
+            this.chessPlayers[winningColor].send('- You win.');
+            this.chessPlayers[losingColor].send('- You lose.');
+
+            this.gameOver = true;
+        }
+    }
+
+    getCurrentTurnPlayer() {
+        return this.chessPlayers[this.currentTurn];
+    }
+
+    getBoard() {
+        return this.board;
+    }
+
     // Method to print the current board state
     displayBoard(playerColor: string = 'white') {
         const rotate = (playerColor === "black");
-        return "\n" + this.board.printBoard(rotate) + "\n";
+        return this.board.printBoard(rotate);
+    }
+
+    getPiece(coord: [number, number]) {
+        return this.board.getPiece(coord);
+    }
+
+    displayPieceMoves(coord: [number, number]) {
+        const piece = this.getPiece(coord);
+        if (!piece) return "None"; 
+        const possibleMoves = piece.possibleMoves();
+        
+        let moveList = []
+        for (const pm of possibleMoves) {
+            const col = pm[0] + 1;
+            const row = String.fromCharCode(pm[1] + 'A'.charCodeAt(0));
+            moveList.push(`[${row}${col}]`);
+        }
+
+        if (!moveList.length) return "None";
+        return moveList.join(" ");
     }
 
     // Method to make a move
@@ -107,7 +155,11 @@ class ChessGame {
         if (piece.color !== this.currentTurn) {
             return [false, "You can only select a piece if it belongs to you."]; 
         }
-    
+        // Check if king is checked and the selected piece is not the king
+        const king = this.currentTurn === 'white' ? this.whiteKing : this.blackKing;
+        if (piece.name !== "King" && this.board.isPositionUnderAttack(king.color, king.position)) {
+            return [false, "Your king is checked. You cannot move any other piece."]
+        }
 
         // Check if selected piece can actually move to specified location
         const validMoves = piece.possibleMoves();
@@ -119,43 +171,15 @@ class ChessGame {
         return [true, "Valid move."]
     }
 
+    // Check if either King is checkmated
     private checkWinCondition(): [boolean, 'white' | 'black' | null] {
-        for (const [color, king] of Object.entries(this.chessPlayerKings)) {
-            if (!king.possibleMoves().length && this.board.isPositionUnderAttack(king.color, king.position)) {
-                return [true, color as 'white' | 'black'];
+        const kings = [this.whiteKing, this.blackKing];
+        kings.forEach((k) => {
+            if (!k.possibleMoves().length && this.board.isPositionUnderAttack(k.color, k.position)) {
+                return [true, k.color];
             }
-        }
-        return [false, null];
-    }
-    
-    // Handle the turn cycle from player to player
-    endTurn() {
-        Object.entries(this.chessPlayers).forEach(([color, player]) => {
-            player.send(this.displayBoard(color));
         });
-        console.log(this.displayBoard());
-    
-        this.currentTurn = this.currentTurn === 'white' ? 'black' : 'white';
-        const currentTurnPlayer = this.chessPlayers[this.currentTurn];
-        const otherPlayerColor = this.currentTurn === 'white' ? 'black' : 'white';
-        const otherTurnPlayer = this.chessPlayers[otherPlayerColor];
-    
-        let [gameOver, losingColor] = this.checkWinCondition();
-        if (!gameOver) {
-            currentTurnPlayer.send('Your turn.\n');
-            otherTurnPlayer.send('Please wait while ' + this.currentTurn[0].toUpperCase() + 
-                this.currentTurn.slice(1) + ' makes their turn.\n');
-        } else {
-            if (losingColor === null) {
-                // Handle the case where there's no losing color, if necessary
-                return;
-            }
-            const winningColor = losingColor === 'white' ? 'black' : 'white';
-            this.chessPlayers[winningColor].send('You win.');
-            this.chessPlayers[losingColor].send('You lose.');
-
-            this.gameOver = true;
-        }
+        return [false, null];
     }
 }
 
